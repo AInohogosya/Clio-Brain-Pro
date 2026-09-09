@@ -277,5 +277,9 @@ def run_server(port=8080):
 
 
 if __name__ == "__main__":
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
-    run_server(port)
+    import argparse
+    parser = argparse.ArgumentParser(description='Clio Brain Pro Server')
+    parser.add_argument('--port', type=int, default=8080, help='Server port')
+    parser.add_argument('--directory', type=str, default=None, help='Directory to serve')
+    args = parser.parse_args()
+    run_server(args.port)

@@ -123,10 +123,6 @@ case $MODE in
         echo ""
         echo -e "${YELLOW}Press Ctrl+C to stop${NC}"
         echo ""
-        exec $PYTHON server.py --directory . --port $PORT 2>/dev/null || $PYTHON -c "
-import sys
-sys.path.insert(0, '.')
-exec(open('server.py').read())
-"
+        exec $PYTHON server.py --port $PORT
         ;;
 esac
