@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clio Brain Pro - Organization OS</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #22d3ee;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 { font-size: 1.5rem; font-weight: 700; }
+        
+        .lang-switch {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .lang-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .lang-btn:hover, .lang-btn.active {
+            background: rgba(255,255,255,0.2);
+            border-color: white;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover { background: var(--primary-dark); }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg);
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+        
+        .select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg);
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-active { background: var(--primary); }
+        .status-satisfied { background: var(--success); }
+        .status-blocked { background: var(--warning); color: black; }
+        .status-monitoring { background: var(--secondary); color: black; }
+        
+        .mission-list {
+            list-style: none;
+        }
+        
+        .mission-item {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mission-item:hover {
+            border-color: var(--primary);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .form-group { margin-bottom: 1rem; }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 0.375rem;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .provider-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .provider-card {
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .provider-card:hover { border-color: var(--primary); }
+        .provider-card.selected { border-color: var(--secondary); background: rgba(34, 211, 238, 0.1); }
+        
+        .log-output {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1 data-i18n="app_title">CLIO BRAIN PRO</h1>
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
+            <button class="lang-btn" onclick="setLanguage('ja')">日本語</button>
+            <button class="lang-btn" onclick="setLanguage('zh')">中文</button>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="org-count">0</div>
+                <div class="stat-label" data-i18n="organizations">Organizations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="mission-count">0</div>
+                <div class="stat-label" data-i18n="missions">Missions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="active-missions">0</div>
+                <div class="stat-label" data-i18n="active">Active</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="revenue">$0</div>
+                <div class="stat-label" data-i18n="revenue">Revenue</div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2 data-i18n="quick_actions">Quick Actions</h2>
+                <button class="btn btn-primary" onclick="showModal('new-org')" data-i18n="new_org">New Organization</button>
+                <button class="btn btn-primary" onclick="showModal('new-mission')" data-i18n="new_mission">New Mission</button>
+                <button class="btn btn-success" onclick="showModal('provider-config')" data-i18n="configure_provider">Configure Provider</button>
+            </div>
+            
+            <div class="card">
+                <h2 data-i18n="system_health">System Health</h2>
+                <div id="health-status">
+                    <p><span data-i18n="generation">Generation</span>: <strong id="gen-num">1</strong></p>
+                    <p><span data-i18n="backups">Backups</span>: <strong id="backup-count">0</strong></p>
+                    <p><span data-i18n="status">Status</span>: <span class="status-badge status-active" data-i18n="healthy">Healthy</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 data-i18n="missions">Missions</h2>
+            <ul class="mission-list" id="mission-list">
+                <!-- Missions loaded dynamically -->
+            </ul>
+        </div>
+    </div>
+    
+    <!-- New Organization Modal -->
+    <div class="modal" id="modal-new-org">
+        <div class="modal-content">
+            <h2 data-i18n="new_org">New Organization</h2>
+            <div class="form-group">
+                <label data-i18n="name">Name</label>
+                <input type="text" class="input" id="org-name">
+            </div>
+            <div class="form-group">
+                <label data-i18n="charter">Charter</label>
+                <textarea class="input" id="org-charter" rows="3"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="createOrganization()" data-i18n="create">Create</button>
+            <button class="btn" onclick="hideModal('new-org')" data-i18n="cancel">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- New Mission Modal -->
+    <div class="modal" id="modal-new-mission">
+        <div class="modal-content">
+            <h2 data-i18n="new_mission">New Mission</h2>
+            <div class="form-group">
+                <label data-i18n="organization">Organization</label>
+                <select class="select" id="mission-org"></select>
+            </div>
+            <div class="form-group">
+                <label data-i18n="type">Type</label>
+                <select class="select" id="mission-type">
+                    <option value="outcome" data-i18n="outcome">Outcome</option>
+                    <option value="standing" data-i18n="standing">Standing</option>
+                    <option value="research" data-i18n="research">Research</option>
+                    <option value="opportunity" data-i18n="opportunity">Opportunity</option>
+                    <option value="capability" data-i18n="capability">Capability</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label data-i18n="title">Title</label>
+                <input type="text" class="input" id="mission-title">
+            </div>
+            <div class="form-group">
+                <label data-i18n="description">Description</label>
+                <textarea class="input" id="mission-description" rows="3"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="createMission()" data-i18n="create">Create</button>
+            <button class="btn" onclick="hideModal('new-mission')" data-i18n="cancel">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- Provider Configuration Modal -->
+    <div class="modal" id="modal-provider-config">
+        <div class="modal-content">
+            <h2 data-i18n="configure_provider">Configure AI Provider</h2>
+            <div class="provider-grid" id="provider-list">
+                <div class="provider-card" onclick="selectProvider('openai')">
+                    <h3>OpenAI</h3>
+                    <p>GPT-4, GPT-3.5-turbo</p>
+                </div>
+                <div class="provider-card" onclick="selectProvider('anthropic')">
+                    <h3>Anthropic</h3>
+                    <p>Claude 3 Opus/Sonnet/Haiku</p>
+                </div>
+                <div class="provider-card" onclick="selectProvider('google')">
+                    <h3>Google</h3>
+                    <p>Gemini Pro/Ultra</p>
+                </div>
+                <div class="provider-card" onclick="selectProvider('local')">
+                    <h3>Local (Ollama)</h3>
+                    <p>Llama2, Mistral</p>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label data-i18n="model">Model</label>
+                <select class="select" id="provider-model"></select>
+            </div>
+            <button class="btn btn-primary" onclick="saveProviderConfig()" data-i18n="save">Save</button>
+            <button class="btn" onclick="hideModal('provider-config')" data-i18n="cancel">Cancel</button>
+        </div>
+    </div>
+    
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                app_title: "CLIO BRAIN PRO",
+                organizations: "Organizations",
+                missions: "Missions",
+                active: "Active",
+                revenue: "Revenue",
+                quick_actions: "Quick Actions",
+                new_org: "New Organization",
+                new_mission: "New Mission",
+                configure_provider: "Configure Provider",
+                system_health: "System Health",
+                generation: "Generation",
+                backups: "Backups",
+                status: "Status",
+                healthy: "Healthy",
+                name: "Name",
+                charter: "Charter",
+                create: "Create",
+                cancel: "Cancel",
+                organization: "Organization",
+                type: "Type",
+                title: "Title",
+                description: "Description",
+                outcome: "Outcome",
+                standing: "Standing",
+                research: "Research",
+                opportunity: "Opportunity",
+                capability: "Capability",
+                model: "Model",
+                save: "Save"
+            },
+            ja: {
+                app_title: "CLIO BRAIN PRO",
+                organizations: "組織",
+                missions: "ミッション",
+                active: "アクティブ",
+                revenue: "収益",
+                quick_actions: "クイックアクション",
+                new_org: "新規組織",
+                new_mission: "新規ミッション",
+                configure_provider: "プロバイダー設定",
+                system_health: "システム状態",
+                generation: "世代",
+                backups: "バックアップ",
+                status: "ステータス",
+                healthy: "正常",
+                name: "名前",
+                charter: "チャーター",
+                create: "作成",
+                cancel: "キャンセル",
+                organization: "組織",
+                type: "タイプ",
+                title: "タイトル",
+                description: "説明",
+                outcome: "成果",
+                standing: "定常",
+                research: "研究",
+                opportunity: "機会",
+                capability: "能力",
+                model: "モデル",
+                save: "保存"
+            },
+            zh: {
+                app_title: "CLIO BRAIN PRO",
+                organizations: "组织",
+                missions: "任务",
+                active: "活跃",
+                revenue: "收入",
+                quick_actions: "快速操作",
+                new_org: "新建组织",
+                new_mission: "新建任务",
+                configure_provider: "配置提供商",
+                system_health: "系统健康",
+                generation: "代次",
+                backups: "备份",
+                status: "状态",
+                healthy: "健康",
+                name: "名称",
+                charter: "章程",
+                create: "创建",
+                cancel: "取消",
+                organization: "组织",
+                type: "类型",
+                title: "标题",
+                description: "描述",
+                outcome: "成果",
+                standing: "常设",
+                research: "研究",
+                opportunity: "机会",
+                capability: "能力",
+                model: "模型",
+                save: "保存"
+            }
+        };
+        
+        let currentLang = 'en';
+        let selectedProvider = null;
+        
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(lang === 'ja' ? '日本語' : lang === 'zh' ? '中文' : 'EN'));
+            });
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+        
+        function showModal(id) {
+            document.getElementById(`modal-${id}`).classList.add('active');
+        }
+        
+        function hideModal(id) {
+            document.getElementById(`modal-${id}`).classList.remove('active');
+        }
+        
+        function selectProvider(provider) {
+            selectedProvider = provider;
+            document.querySelectorAll('.provider-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.provider-card').classList.add('selected');
+            
+            // Update model options
+            const models = {
+                openai: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo'],
+                anthropic: ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'],
+                google: ['gemini-pro', 'gemini-ultra'],
+                local: ['llama2', 'mistral', 'codellama']
+            };
+            
+            const modelSelect = document.getElementById('provider-model');
+            modelSelect.innerHTML = models[provider].map(m => `<option value="${m}">${m}</option>`).join('');
+        }
+        
+        async function loadDashboard() {
+            try {
+                const [orgsRes, missionsRes, healthRes] = await Promise.all([
+                    fetch('/api/organizations'),
+                    fetch('/api/missions'),
+                    fetch('/api/health')
+                ]);
+                
+                const orgs = await orgsRes.json();
+                const missions = await missionsRes.json();
+                const health = await healthRes.json();
+                
+                document.getElementById('org-count').textContent = orgs.length;
+                document.getElementById('mission-count').textContent = missions.length;
+                document.getElementById('active-missions').textContent = 
+                    missions.filter(m => m.status === 'active').length;
+                document.getElementById('gen-num').textContent = health.generation || 1;
+                document.getElementById('backup-count').textContent = health.backups || 0;
+                
+                // Populate org dropdown
+                const orgSelect = document.getElementById('mission-org');
+                orgSelect.innerHTML = orgs.map(o => `<option value="${o.id}">${o.name}</option>`).join('');
+                
+                // Populate mission list
+                const missionList = document.getElementById('mission-list');
+                missionList.innerHTML = missions.map(m => `
+                    <li class="mission-item">
+                        <div>
+                            <strong>${m.title}</strong>
+                            <br><small>${m.description.substring(0, 100)}...</small>
+                        </div>
+                        <span class="status-badge status-${m.status}">${m.status}</span>
+                    </li>
+                `).join('');
+            } catch (err) {
+                console.error('Failed to load dashboard:', err);
+            }
+        }
+        
+        async function createOrganization() {
+            const name = document.getElementById('org-name').value;
+            const charter = document.getElementById('org-charter').value;
+            
+            await fetch('/api/organizations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, charter })
+            });
+            
+            hideModal('new-org');
+            loadDashboard();
+        }
+        
+        async function createMission() {
+            const organization_id = document.getElementById('mission-org').value;
+            const mission_type = document.getElementById('mission-type').value;
+            const title = document.getElementById('mission-title').value;
+            const description = document.getElementById('mission-description').value;
+            
+            await fetch('/api/missions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ organization_id, mission_type, title, description })
+            });
+            
+            hideModal('new-mission');
+            loadDashboard();
+        }
+        
+        async function saveProviderConfig() {
+            const model = document.getElementById('provider-model').value;
+            
+            await fetch('/api/config/provider', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ provider: selectedProvider, model })
+            });
+            
+            hideModal('provider-config');
+            alert('Provider configuration saved!');
+        }
+        
+        // Initialize
+        loadDashboard();
+        setInterval(loadDashboard, 30000); // Refresh every 30 seconds
+    </script>
+</body>
+</html>
