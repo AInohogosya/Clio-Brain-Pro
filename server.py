@@ -72,6 +72,10 @@ api = ClioBrainAPI()
 class APIHandler(SimpleHTTPRequestHandler):
     """HTTP request handler with API routing."""
     
+    def __init__(self, *args, **kwargs):
+        # Serve static files from web/ directory
+        super().__init__(*args, directory=os.path.join(os.path.dirname(__file__), 'web'), **kwargs)
+    
     def do_GET(self):
         """Handle GET requests."""
         parsed = urlparse(self.path)
@@ -80,7 +84,9 @@ class APIHandler(SimpleHTTPRequestHandler):
         if parsed.path.startswith('/api/'):
             self.handle_api_get(parsed.path)
         else:
-            # Serve static files
+            # Serve static files from web/ directory
+            if parsed.path == '/' or parsed.path == '':
+                self.path = '/index.html'
             super().do_GET()
     
     def do_POST(self):
