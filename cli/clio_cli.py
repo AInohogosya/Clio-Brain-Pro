@@ -61,6 +61,18 @@ class ProviderSelectionKit:
             "env_var": "GOOGLE_API_KEY",
             "description": "Google Gemini models"
         },
+        "openrouter": {
+            "name": "OpenRouter",
+            "models": ["meta-llama/llama-3-70b-instruct", "mistralai/mistral-large", "anthropic/claude-3-opus", "openai/gpt-4-turbo"],
+            "env_var": "OPENROUTER_API_KEY",
+            "description": "OpenRouter - Access to multiple AI providers via unified API"
+        },
+        "nvidia": {
+            "name": "NVIDIA NIM",
+            "models": ["meta/llama3-70b-instruct", "meta/llama3-8b-instruct", "mistralai/mistral-large", "google/gemma-7b"],
+            "env_var": "NVIDIA_API_KEY",
+            "description": "NVIDIA NIM - High-performance inference with NVIDIA GPUs"
+        },
         "local": {
             "name": "Local (Ollama)",
             "models": ["llama2", "mistral", "codellama"],
